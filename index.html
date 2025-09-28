@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mp33</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
   <style>
-    /* iOS-like font stack */
     :root{
       --glass: rgba(255,255,255,.10);
       --glass-strong: rgba(255,255,255,.16);
@@ -81,8 +81,7 @@
     }
     /* Blurred background driven by album art */
     .bg {
-      position:fixed;
-      inset:0;
+      position:fixed; inset:0;
       background:#000 center/cover no-repeat;
       filter:blur(28px) brightness(.55);
       transform:scale(1.05); /* hide blur edges */
@@ -105,8 +104,7 @@
     }
     /* Main card */
     .wrap{
-      height:100%;
-      width:100%;
+      height:100%; width:100%;
       display:flex; align-items:center; justify-content:center;
       padding:24px;
     }
@@ -124,8 +122,7 @@
     /* Album art */
     .art{
       width:100%; border-radius:var(--art-radius);
-      overflow:hidden;
-      position:relative;
+      overflow:hidden; position:relative;
       box-shadow:0 12px 40px var(--shadow);
       transition: box-shadow 0.2s ease-out; /* Smooth shadow transition */
     }
@@ -135,7 +132,6 @@
         width: 100%;
         border-radius: var(--art-radius);
         box-shadow: 0 12px 40px var(--shadow);
-        overflow: hidden; /* FIX: Added to make rounded corners work */
     }
     .art-container::before {
         content: '';
@@ -187,8 +183,7 @@
     }
     .seek::-webkit-slider-thumb{
       -webkit-appearance:none; appearance:none; width:14px; height:14px;
-      border-radius:50%; background:#fff;
-      box-shadow:0 0 0 3px rgba(255,255,255,.25) inset, 0 0 10px rgba(255,255,255,0.4);
+      border-radius:50%; background:#fff; box-shadow:0 0 0 3px rgba(255,255,255,.25) inset, 0 0 10px rgba(255,255,255,0.4);
       cursor:pointer;
       transition: all 0.2s ease-in-out;
     }
@@ -200,12 +195,23 @@
     .seek::-webkit-slider-thumb:hover, .seek::-moz-range-thumb:hover {
         transform: scale(1.2);
     }
-    /* Transport controls (pure CSS shapes, no icons) */
-    .transport{
-      width:100%;
-      display:flex; align-items:center; justify-content:center;
-      gap:10px;
+    
+    /* --- MODIFIED: Simplified and Evenly Distributed Controls --- */
+    .transport {
+      width: 100%;
+      display: flex;
+      flex-direction: column; /* Stack main and secondary controls */
+      align-items: center;
+      gap: 16px; /* Space between the two rows */
     }
+
+    .secondary-controls {
+      width: 100%;
+      display: flex;
+      justify-content: space-around; /* Evenly distribute the 4 icons */
+      align-items: center;
+    }
+
     .glass-visor {
         display: flex;
         align-items: center;
@@ -231,8 +237,7 @@
     .btn:active{transform:scale(.98)}
     /* CSS icons */
     .tri-right{ /* play / next body */
-      width:0;
-      height:0; border-top:12px solid transparent; border-bottom:12px solid transparent; border-left:20px solid currentColor;
+      width:0; height:0; border-top:12px solid transparent; border-bottom:12px solid transparent; border-left:20px solid currentColor;
     }
     .pause-bars{display:flex; gap:6px}
     .pause-bars .bar{width:6px; height:22px; background:currentColor; border-radius:2px}
@@ -240,8 +245,7 @@
     .skip-line{width:3px; height:22px; background:currentColor; margin-left:4px; border-radius:1.5px}
     /* Bottom row */
     .link{
-      background:var(--glass-strong); padding:10px 14px;
-      border-radius:12px;
+      background:var(--glass-strong); padding:10px 14px; border-radius:12px;
       backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
       cursor:pointer; user-select:none;
     }
@@ -261,8 +265,7 @@
     }
     /* Overlays */
     .overlay{
-      position:fixed;
-      inset:0; display:none; align-items:flex-end; justify-content:center;
+      position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center;
       background:rgba(0,0,0,.35);
     }
     .sheet{
@@ -273,8 +276,7 @@
     }
     .sheet h3{margin:6px 0 12px}
     .upnext-item{
-      padding:10px 12px; border-radius:12px;
-      background:rgba(255,255,255,.08);
+      padding:10px 12px; border-radius:12px; background:rgba(255,255,255,.08);
       margin-bottom:8px; display:flex; gap:10px; align-items:center; cursor:grab;
     }
     .dot{width:8px; height:8px; border-radius:50%; background:#fff; opacity:.75}
@@ -284,8 +286,7 @@
     }
     .toggle:checked{background:#fff}
     .toggle:before{
-      content:""; position:absolute; top:3px; left:3px; width:20px; height:20px;
-      border-radius:50%; background:#fff; transition:left .18s ease, background .18s ease;
+      content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:left .18s ease, background .18s ease;
     }
     .toggle:checked:before{left:19px; background:#000}
     .sheet .small{font-size:13px; opacity:.85}
@@ -360,7 +361,6 @@
       <div id="artContainer" class="art-container">
         <div class="art-content-wrapper">
           <img id="artImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800'%3E%3Crect width='100%25' height='100%25' fill='%23000'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23fff' font-family='Arial' font-size='28'%3EUpload music to begin%3C/text%3E%3C/svg%3E" alt="Album art">
-  
           <div id="youtubePlayer" class="video-container">
             <iframe id="youtubeIframe"
                 src=""
@@ -376,7 +376,6 @@
         <p id="trackArtist">—</p>
       </div>
       <div id="fileUploads" class="uploads">
-        
         <label class="btn-upload">Folder<input id="folderInput" type="file" webkitdirectory directory multiple accept="audio/*"></label>
         <label class="btn-upload">File<input id="fileInput" type="file" multiple accept="audio/*"></label>
       </div>
@@ -393,9 +392,7 @@
           </div>
         </div>
         <div class="transport">
-          <div id="openQueue" class="icon-link" title="Up Next">&#9776;</div>
           <div class="glass-visor">
-        
             <div id="prev" class="btn btn-secondary" aria-label="Previous">
               <div style="display:flex; align-items:center; color:#fff;">
                 <div class="skip-line"></div>
@@ -412,15 +409,15 @@
               </div>
             </div>
           </div>
-          <div class="transport-extras" style="display:flex; gap: 10px;">
-            <div id="castButton" class="icon-link" title="Cast" style="display: none;">
-              <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 0 24 24" width="22px" fill="currentColor">
-                <path d="M0 0h24v24H0V0z" fill="none"/>
-                <path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/>
-              </svg>
-            </div>
+          <div class="secondary-controls">
+            <div id="openQueue" class="icon-link" title="Up Next">&#9776;</div>
             <div id="openAIFeatures" class="icon-link" title="AI Features">✨</div>
             <div id="openSettings" class="icon-link" title="Settings">&#9881;</div>
+            <div id="castButton" class="icon-link" title="Cast">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M1,18 L3,18 C4.66,18 6,19.34 6,21 L1,21 L1,18 Z M1,14 L1,16 C5.97,16 10,20.03 10,25 L12,25 C12,18.92 7.08,14 1,14 Z M1,10 L1,12 C8.18,12 14,17.82 14,25 L16,25 C16,16.72 9.28,10 1,10 Z M21,3 L3,3 C1.9,3 1,3.9 1,5 L1,8 L3,8 L3,5 L21,5 L21,19 L17,19 L17,21 L21,21 C22.1,21 23,20.1 23,19 L23,5 C23,3.9 22.1,3 21,3 Z"/>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -463,7 +460,6 @@
   <div id="settingsOv" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <div class="row"><h3>Settings</h3><div id="closeSettings" class="link">Close</div></div>
-  
       <div class="row" style="margin:10px 0;">
         <div>
           <div>Player Mode</div>
@@ -479,8 +475,7 @@
           <div>Rounded album art</div>
           <div class="small">Toggle between rounded and square corners.</div>
         </div>
-       
-         <input id="setRounded" type="checkbox" class="toggle" checked>
+        <input id="setRounded" type="checkbox" class="toggle" checked>
       </div>
       <div class="row" style="margin:10px 0;">
         <div>
@@ -494,7 +489,6 @@
   <audio id="audio"></audio>
   <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
   <script>
     const audio = document.getElementById('audio');
     const artImg = document.getElementById('artImg');
@@ -526,9 +520,11 @@
     const youtubePlayer = document.getElementById('youtubePlayer');
     const youtubeIframe = document.getElementById('youtubeIframe');
     const artContainer = document.getElementById('artContainer');
+    
     // UI Mode Switching in Settings
     const setModeLocal = document.getElementById('setModeLocal');
     const setModeYouTube = document.getElementById('setModeYouTube');
+
     // AI Features elements
     const aiFeaturesOv = document.getElementById('aiFeaturesOv');
     const openAIFeatures = document.getElementById('openAIFeatures');
@@ -536,46 +532,44 @@
     const aiArtistInfoBtn = document.getElementById('aiArtistInfoBtn');
     const aiSongSummaryBtn = document.getElementById('aiSongSummaryBtn');
     const aiLyricsFinderBtn = document.getElementById('aiLyricsFinderBtn');
+
     // Artist Info overlay
     const artistInfoOv = document.getElementById('artistInfoOv');
     const closeArtistInfo = document.getElementById('closeArtistInfo');
     const artistInfoContent = document.getElementById('artistInfoContent');
+    
     // Song Summary overlay
     const songSummaryOv = document.getElementById('songSummaryOv');
     const closeSongSummary = document.getElementById('closeSongSummary');
     const songSummaryContent = document.getElementById('songSummaryContent');
+
     // Lyrics Finder overlay
     const lyricsFinderOv = document.getElementById('lyricsFinderOv');
     const closeLyricsFinder = document.getElementById('closeLyricsFinder');
     const lyricsContent = document.getElementById('lyricsContent');
+    
     // Splash screen
     const splashScreen = document.getElementById('splashScreen');
-    // Cast elements
-    const castButton = document.getElementById('castButton');
 
     const YOUTUBE_API_KEY = "AIzaSyCRp1Gqj5yO2EHlUdlbTVipFWgFGAOM40Y";
     const YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3";
     const LOCAL_MODE = 'local';
     const YOUTUBE_MODE = 'youtube';
 
-    let playlist = [];
-    // [{file, url, title, artist, cover, isYouTube, videoId}]
+    let playlist = []; // [{file, url, title, artist, cover, isYouTube, videoId}]
     let current = -1;
     let playing = false;
     let currentMode = LOCAL_MODE;
     let youtubePlayerInstance;
     let updateYoutubeProgressInterval;
 
-    // Chromecast variables
-    let castSession = null;
-    let remotePlayer = null;
-    let remotePlayerController = null;
-
     // Audio Visualizer
     let audioContext, analyser, source, dataArray, visualizerAnimating = false;
+
     function initVisualizer() {
         if (visualizerAnimating) return;
         visualizerAnimating = true;
+
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
@@ -670,18 +664,13 @@
       current = index;
       const t = playlist[index];
       
-      // If a cast session is active, load media on the remote device
-      castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-      if (castSession) {
-        castMedia(t);
-        return;
-      }
-      
       titleEl.textContent = t.title || 'Unknown';
       artistEl.textContent = t.artist || '—';
+
       if (t.isYouTube) {
           youtubePlayer.classList.add('active');
           artImg.style.display = 'none';
+          
           if (youtubePlayerInstance) {
             youtubePlayerInstance.loadVideoById(t.videoId);
           } else {
@@ -706,6 +695,7 @@
           audio.src = t.url;
           audio.load();
           audio.addEventListener('canplaythrough', () => { play(); }, { once: true });
+          
           if (t.cover){
             artImg.src = t.cover;
             updateBackground(t.cover);
@@ -724,10 +714,6 @@
     }
 
     function play(){
-        if (castSession) {
-            if (remotePlayer.isPaused) remotePlayerController.playOrPause();
-            return;
-        }
         if(currentMode === LOCAL_MODE) {
             audio.play();
         } else if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
@@ -735,10 +721,6 @@
         }
     }
     function pause(){
-        if (castSession) {
-            if (!remotePlayer.isPaused) remotePlayerController.playOrPause();
-            return;
-        }
         if(currentMode === LOCAL_MODE) {
             audio.pause();
         } else if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
@@ -754,7 +736,7 @@
               youtubePlayerInstance.nextVideo();
             } else {
               pause();
-              if(!castSession) audio.currentTime = 0;
+              audio.currentTime = 0;
             }
         }
     }
@@ -772,13 +754,9 @@
     }
     // UI events
     playPause.addEventListener('click', ()=>{
-        if (castSession) {
-            remotePlayerController.playOrPause();
-            return;
-        }
         if (currentMode === LOCAL_MODE) {
             audio.paused ? play() : pause();
-        } else if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
+        } else if (currentMode === YOUTUBE_MODE) {
             const playerState = youtubePlayerInstance.getPlayerState();
             if (playerState === YT.PlayerState.PLAYING) {
                 pause();
@@ -799,6 +777,7 @@
             await loadYouTubeVideo(url);
         }
     });
+
     // Progress
     audio.addEventListener('loadedmetadata', ()=>{
       updateProgressUI(audio.currentTime, audio.duration);
@@ -812,36 +791,43 @@
       }
     });
     seek.addEventListener('input', ()=> {
-        const newTime = seek.value;
-        if (castSession) {
-            remotePlayer.currentTime = newTime;
-            remotePlayerController.seek();
-            return;
-        }
         if (currentMode === LOCAL_MODE) {
-            audio.currentTime = newTime;
+            audio.currentTime = seek.value;
         } else if (currentMode === YOUTUBE_MODE) {
             if (youtubePlayerInstance && typeof youtubePlayerInstance.seekTo === 'function') {
-                youtubePlayerInstance.seekTo(newTime, true);
+                youtubePlayerInstance.seekTo(seek.value, true);
             }
         }
     });
     audio.addEventListener('ended', ()=> {
       if (current < playlist.length-1) next(); else pause();
     });
+
     // Overlays
     openQueue.onclick = ()=> queueOv.style.display='flex';
     closeQueue.onclick = ()=> queueOv.style.display='none';
     openSettings.onclick = ()=> settingsOv.style.display='flex';
     closeSettings.onclick = ()=> settingsOv.style.display='none';
+    // Ensure artContainer border radius follows the CSS variable on load
+    function syncArtRadius(){
+      const val = getComputedStyle(document.documentElement).getPropertyValue('--art-radius') || '22px';
+      artContainer.style.borderRadius = val.trim();
+      artImg.style.borderRadius = val.trim();
+    }
+    syncArtRadius();
+
     setRounded.onchange = (e)=> {
-      const radius = e.target.checked ? '22px' : '8px';
-      document.documentElement.style.setProperty('--art-radius', radius);
+      const newVal = e.target.checked? '22px' : '8px';
+      document.documentElement.style.setProperty('--art-radius', newVal);
+      artContainer.style.borderRadius = newVal;
+      artImg.style.borderRadius = newVal;
     };
     setTint.onchange = (e)=> { bgTint.style.opacity = e.target.checked? '.9':'0'; };
+    
     // Player Mode Switching in Settings
     function setPlayerMode(mode) {
         if (currentMode === mode) return;
+
         // Reset current state
         if (currentMode === LOCAL_MODE) {
             audio.pause();
@@ -885,6 +871,7 @@
         getArtistInfo();
     };
     closeArtistInfo.onclick = () => artistInfoOv.style.display = 'none';
+
     aiSongSummaryBtn.onclick = () => {
         aiFeaturesOv.style.display = 'none';
         songSummaryOv.style.display = 'flex';
@@ -898,6 +885,7 @@
         getLyrics();
     };
     closeLyricsFinder.onclick = () => lyricsFinderOv.style.display = 'none';
+
     // Queue render + drag reorder
     function renderQueue(){
       queueList.innerHTML = '';
@@ -945,10 +933,12 @@
     async function loadYouTubeVideo(url) {
         const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
         if (!videoIdMatch) {
+            // Use custom modal instead of alert
             showModal('Invalid YouTube Video URL', 'The URL you provided does not appear to be a valid YouTube video link. Please try again with a correct URL.');
             return;
         }
         const videoId = videoIdMatch[1];
+        
         try {
             const res = await fetch(`${YOUTUBE_API_URL}/videos?part=snippet&id=${videoId}&key=${YOUTUBE_API_KEY}`);
             const data = await res.json();
@@ -979,6 +969,7 @@
             return;
         }
         const playlistId = playlistIdMatch[1];
+        
         try {
             const res = await fetch(`${YOUTUBE_API_URL}/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}`);
             const data = await res.json();
@@ -1020,9 +1011,11 @@
 
     function onPlayerReady(event) {
         updateYoutubeProgressInterval = setInterval(() => {
-            const currentTime = youtubePlayerInstance.getCurrentTime();
-            const duration = youtubePlayerInstance.getDuration();
-            updateProgressUI(currentTime, duration);
+            if (youtubePlayerInstance && typeof youtubePlayerInstance.getCurrentTime === 'function') {
+                const currentTime = youtubePlayerInstance.getCurrentTime();
+                const duration = youtubePlayerInstance.getDuration();
+                updateProgressUI(currentTime, duration);
+            }
         }, 1000);
     }
     
@@ -1034,83 +1027,6 @@
         }
     }
     // --- End YouTube Integration ---
-
-    // --- Chromecast Integration ---
-    window['__onGCastApiAvailable'] = function(isAvailable) {
-        if (isAvailable) {
-            initializeCastApi();
-        }
-    };
-
-    function initializeCastApi() {
-        const castContext = cast.framework.CastContext.getInstance();
-        castContext.setOptions({
-            receiverApplicationId: chrome.cast.DEFAULT_MEDIA_RECEIVER_APP_ID,
-            autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-        });
-
-        remotePlayer = new cast.framework.RemotePlayer();
-        remotePlayerController = new cast.framework.RemotePlayerController(remotePlayer);
-
-        castContext.addEventListener(
-            cast.framework.CastContextEventType.CAST_STATE_CHANGED,
-            event => {
-                castButton.style.display = (event.castState !== cast.framework.CastState.NO_DEVICES_AVAILABLE) ? 'flex' : 'none';
-            }
-        );
-        
-        remotePlayerController.addEventListener(
-            cast.framework.RemotePlayerEventType.CURRENT_TIME_CHANGED,
-            () => {
-                updateProgressUI(remotePlayer.currentTime, remotePlayer.duration);
-            }
-        );
-
-        remotePlayerController.addEventListener(
-            cast.framework.RemotePlayerEventType.IS_PAUSED_CHANGED,
-            () => {
-                setPlayIcon(!remotePlayer.isPaused);
-            }
-        );
-    }
-
-    function castMedia(track) {
-        // NOTE: The Default Media Receiver cannot play blob URLs from local files or YouTube video URLs.
-        // This function will fail unless the track.url points to a publicly accessible media file.
-        // A custom receiver would be required for full functionality.
-        if (!track.url && !track.isYouTube) {
-            console.error("Cannot cast: Track has no valid URL.");
-            return;
-        }
-
-        const mediaInfo = new chrome.cast.media.MediaInfo(track.url, track.file?.type || 'audio/mp3');
-        mediaInfo.metadata = new chrome.cast.media.GenericMediaMetadata();
-        mediaInfo.metadata.title = track.title;
-        mediaInfo.metadata.artist = track.artist;
-        if (track.cover) {
-            mediaInfo.metadata.images = [new chrome.cast.Image(track.cover)];
-        }
-
-        const request = new chrome.cast.media.LoadRequest(mediaInfo);
-        castSession.loadMedia(request).then(
-            () => {
-                console.log('Media loaded successfully on Chromecast.');
-                // Update local UI to reflect remote state
-                titleEl.textContent = track.title;
-                artistEl.textContent = track.artist;
-                if (track.cover) {
-                    artImg.src = track.cover;
-                    updateBackground(track.cover);
-                }
-                setPlayIcon(true);
-            },
-            errorCode => {
-                console.error('Error loading media on Chromecast: ', errorCode);
-                alert('Error: Could not cast this media type. See console for details.');
-            }
-        );
-    }
-    // --- End Chromecast Integration ---
 
     // --- Gemini API Integration: Artist Info ---
     async function getArtistInfo() {
@@ -1232,6 +1148,12 @@
     }
     // --- End Gemini API Integration: Lyrics Finder ---
 
+    // Simple modal fallback used by a few helper functions
+    function showModal(title, message){
+      // lightweight fallback so the UI doesn't break if a custom modal isn't present
+      alert(title + "\n\n" + message);
+    }
+
     // Splash screen logic
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
@@ -1239,6 +1161,61 @@
             splashScreen.style.visibility = 'hidden';
         }, 500);
     });
+
+    // --- Chromecast integration ---
+    window['__onGCastApiAvailable'] = function(isAvailable) {
+      if (isAvailable && window.cast && window.cast.framework) {
+        try{
+          cast.framework.CastContext.getInstance().setOptions({
+            receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+            autoJoinPolicy: chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED
+          });
+        }catch(e){
+          console.warn('Cast init failed', e);
+        }
+      }
+    };
+
+    document.getElementById('castButton').addEventListener('click', async () => {
+      if (!window.cast || !window.cast.framework) {
+        showModal('Cast Not Available', 'Cast SDK not available in this environment. Use Chrome on desktop/mobile with Cast enabled.');
+        return;
+      }
+
+      const castContext = cast.framework.CastContext.getInstance();
+      try{
+        let session = castContext.getCurrentSession();
+        if (!session) {
+          await castContext.requestSession();
+          session = castContext.getCurrentSession();
+        }
+        if (!session) return;
+
+        const track = playlist[current];
+        if (!track) { showModal('No track', 'Please load a track before casting.'); return; }
+
+        const mediaUrl = track.isYouTube ? `https://www.youtube.com/watch?v=${track.videoId}` : track.url;
+        const contentType = track.isYouTube ? 'video/mp4' : 'audio/mp3';
+
+        const mediaInfo = new chrome.cast.media.MediaInfo(mediaUrl, contentType);
+        mediaInfo.metadata = new chrome.cast.media.MusicTrackMediaMetadata();
+        mediaInfo.metadata.title = track.title;
+        mediaInfo.metadata.artist = track.artist;
+        if (track.cover) mediaInfo.metadata.images = [{ url: track.cover }];
+
+        const request = new chrome.cast.media.LoadRequest(mediaInfo);
+        session.loadMedia(request).then(() => {
+          console.log('Cast started');
+        }, (err) => {
+          console.error('Cast error', err);
+          showModal('Cast Error', 'Could not load media to Cast device.');
+        });
+      }catch(err){
+        console.error('Cast session error', err);
+        showModal('Cast Error', 'Could not start a cast session.');
+      }
+    });
+
   </script>
 </body>
 </html>
