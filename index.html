@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mp33</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <title>mp33</title> <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -198,7 +197,7 @@
     /* Transport controls (pure CSS shapes, no icons) */
     .transport{
       width:100%;
-      display:flex; align-items:center; justify-content:center;
+      display:flex; align-items:center; justify-content:space-between; /* Adjusted for extras */
       gap:10px;
     }
     .glass-visor {
@@ -222,6 +221,12 @@
       width:50px; height:50px; background:rgba(255,255,255,.15); color:#fff;
       backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
       box-shadow:none;
+      transition: background 0.2s ease;
+    }
+    .btn-secondary:hover:not(.active) { background:rgba(255,255,255,.25); }
+    .btn-secondary.active {
+      background:rgba(255,255,255,.95); color:#000;
+      box-shadow:0 0 10px rgba(255, 255, 255, 0.4);
     }
     .btn:active{transform:scale(.98)}
     /* CSS icons */
@@ -237,7 +242,10 @@
       background:var(--glass-strong); padding:10px 14px; border-radius:12px;
       backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
       cursor:pointer; user-select:none;
+      transition: background 0.2s ease, opacity 0.2s ease;
     }
+    .link:hover { background: rgba(255, 255, 255, 0.25); }
+    .link.disabled { opacity: 0.5; pointer-events: none; } /* Disabled state */
     .icon-link {
         font-size: 20px;
         padding: 6px 10px;
@@ -251,11 +259,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: background 0.2s ease;
     }
+    .icon-link:hover { background: rgba(255, 255, 255, 0.25); }
     /* Overlays */
     .overlay{
       position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center;
-      background:rgba(0,0,0,.35);
+      background:rgba(0,0,0,.55); /* Darker backdrop */
+      z-index: 1000;
     }
     .sheet{
       width:100%; max-width:480px; background:var(--glass); color:#fff; border-top-left-radius:18px; border-top-right-radius:18px;
@@ -267,7 +278,14 @@
     .upnext-item{
       padding:10px 12px; border-radius:12px; background:rgba(255,255,255,.08);
       margin-bottom:8px; display:flex; gap:10px; align-items:center; cursor:grab;
+      position: relative; /* For the delete button */
     }
+    .upnext-item.current { outline: 2px solid rgba(255,255,255,.35); background:rgba(255,255,255,.15); }
+    .queue-delete {
+        font-size: 16px; color: #fff; cursor: pointer; opacity: 0.7; padding: 4px;
+        transition: opacity 0.2s;
+    }
+    .queue-delete:hover { opacity: 1; }
     .dot{width:8px; height:8px; border-radius:50%; background:#fff; opacity:.75}
     .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
     .toggle{
@@ -335,15 +353,42 @@
       height: 100%;
       object-fit: cover;
     }
+    /* Volume Slider styling (like seek bar) */
+    .vol-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+    }
+    #vol {
+        flex: 1; height: 4px; border-radius: 2px;
+        background: linear-gradient(90deg, #fff 100%, rgba(255,255,255,.28) 100%);
+        -webkit-appearance: none; appearance: none; outline: none;
+    }
+    #vol::-webkit-slider-thumb{
+      -webkit-appearance:none; appearance:none; width:12px; height:12px;
+      border-radius:50%; background:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.25) inset;
+      cursor:pointer;
+    }
+    /* Custom Modal styles */
+    #customModal {
+        position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+        background: rgba(0,0,0,.7); z-index: 2000;
+    }
+    #modalContent {
+        max-width: 350px; padding: 20px; border-radius: 18px;
+        background: var(--glass-strong); backdrop-filter: blur(20px);
+        box-shadow: 0 10px 40px var(--shadow); text-align: center;
+    }
+    #modalContent h3 { margin-top: 0; }
+    #modalCloseBtn { margin-top: 15px; }
   </style>
 </head>
 <body>
   <div id="splashScreen">
     <div class="glass-orb"></div>
-    <h1>Glass Player</h1>
-    <p>by Rishi Rohith</p>
+    <h1>mp33</h1> <p>by Rishi Rohith</p>
   </div>
-  <!-- dynamic blurred background -->
   <div id="bg" class="bg"></div>
   <div id="bgTint" class="bg-tint"></div>
   <div class="wrap">
@@ -384,73 +429,78 @@
         <div class="transport">
           <div id="openQueue" class="icon-link" title="Up Next">&#9776;</div>
           <div class="glass-visor">
-            <!-- PREV -->
+            <div id="shuffleBtn" class="btn-secondary" style="width:40px;height:40px;border-radius:10px;font-size:18px;" title="Shuffle">&#x21c4;</div>
             <div id="prev" class="btn btn-secondary" aria-label="Previous">
               <div style="display:flex; align-items:center; color:#fff;">
                 <div class="skip-line"></div>
                 <div class="skip-body" style="transform:scaleX(-1); margin-left:4px;"></div>
               </div>
             </div>
-            <!-- PLAY/PAUSE -->
             <div id="playPause" class="btn" aria-label="Play">
               <div id="iconPlay" class="tri-right"></div>
             </div>
-            <!-- NEXT -->
             <div id="next" class="btn btn-secondary" aria-label="Next">
               <div style="display:flex; align-items:center; color:#fff;">
                 <div class="skip-body"></div>
                 <div class="skip-line"></div>
               </div>
             </div>
+            <div id="repeatBtn" class="btn-secondary" style="width:40px;height:40px;border-radius:10px;font-size:18px;" title="Repeat">&#x27f3;</div>
           </div>
           <div class="transport-extras">
             <div id="openAIFeatures" class="icon-link" title="AI Features">✨</div>
             <div id="openSettings" class="icon-link" title="Settings">&#9881;</div>
           </div>
         </div>
+        <div class="vol-wrap" style="margin-top: 10px;">
+            <span style="font-size:18px; opacity:.9;">&#x1f50a;</span>
+            <input id="vol" type="range" min="0" max="1" step="0.01" value="1">
+        </div>
       </div>
     </div>
   </div>
-  <!-- Up Next overlay -->
+  <div id="customModal" role="alertdialog" aria-modal="true">
+      <div id="modalContent">
+          <h3 id="modalTitle"></h3>
+          <p id="modalMessage"></p>
+          <div id="modalCloseBtn" class="link">Close</div>
+      </div>
+  </div>
   <div id="queueOv" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <div class="row"><h3>Up Next</h3><div id="closeQueue" class="link">Close</div></div>
       <div id="queueList"></div>
     </div>
   </div>
-  <!-- AI Features overlay -->
   <div id="aiFeaturesOv" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <div class="row"><h3>AI Features</h3><div id="closeAIFeatures" class="link">Close</div></div>
+      <p class="small" style="color:yellow; font-weight:bold;">⚠️ AI Features have been disabled for security. A backend server is required to use this feature safely.</p>
       <div id="aiFeaturesList" style="display:flex; flex-direction:column; gap:8px;">
-        <div id="aiArtistInfoBtn" class="link">✨ Artist Info</div>
-        <div id="aiSongSummaryBtn" class="link">✨ Song Summary</div>
-        <div id="aiLyricsFinderBtn" class="link">✨ Lyrics Finder</div>
+        <div id="aiArtistInfoBtn" class="link">✨ Artist Info (Disabled)</div>
+        <div id="aiSongSummaryBtn" class="link">✨ Song Summary (Disabled)</div>
+        <div id="aiLyricsFinderBtn" class="link">✨ Lyrics Finder (Disabled)</div>
       </div>
     </div>
   </div>
-  <!-- Artist Info overlay -->
   <div id="artistInfoOv" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <div class="row"><h3>Artist Info</h3><div id="closeArtistInfo" class="link">Close</div></div>
       <div id="artistInfoContent" class="small"></div>
     </div>
   </div>
-  <!-- Song Summary overlay -->
   <div id="songSummaryOv" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <div class="row"><h3>Song Summary</h3><div id="closeSongSummary" class="link">Close</div></div>
       <div id="songSummaryContent" class="small"></div>
     </div>
   </div>
-  <!-- Lyrics Finder overlay -->
   <div id="lyricsFinderOv" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <div class="row"><h3>Lyrics Finder</h3><div id="closeLyricsFinder" class="link">Close</div></div>
       <div id="lyricsContent" class="small" style="white-space: pre-wrap;"></div>
     </div>
   </div>
-  <!-- Settings overlay -->
   <div id="settingsOv" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <div class="row"><h3>Settings</h3><div id="closeSettings" class="link">Close</div></div>
@@ -481,9 +531,7 @@
     </div>
   </div>
   <audio id="audio"></audio>
-  <!-- ID3 tag reader for cover/title/artist -->
   <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
-  <!-- YouTube Iframe API -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     const audio = document.getElementById('audio');
@@ -516,6 +564,16 @@
     const youtubePlayer = document.getElementById('youtubePlayer');
     const youtubeIframe = document.getElementById('youtubeIframe');
     const artContainer = document.getElementById('artContainer');
+    const vol = document.getElementById('vol'); // Volume control
+    const shuffleBtn = document.getElementById('shuffleBtn'); // Shuffle
+    const repeatBtn = document.getElementById('repeatBtn'); // Repeat
+    
+    // Custom Modal elements
+    const customModal = document.getElementById('customModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    modalCloseBtn.onclick = () => customModal.style.display = 'none';
     
     // UI Mode Switching in Settings
     const setModeLocal = document.getElementById('setModeLocal');
@@ -547,10 +605,16 @@
     // Splash screen
     const splashScreen = document.getElementById('splashScreen');
 
-    const YOUTUBE_API_KEY = "AIzaSyCRp1Gqj5yO2EHlUdlbTVipFWgFGAOM40Y";
+    // IMPORTANT: Keys removed for security. Replace with your server endpoint if using a backend.
+    const YOUTUBE_API_KEY = "PLACEHOLDER_KEY";
     const YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3";
     const LOCAL_MODE = 'local';
     const YOUTUBE_MODE = 'youtube';
+    const REPEAT_OFF = 0;
+    const REPEAT_ONE = 1;
+    const REPEAT_ALL = 2;
+    const DEFAULT_TITLE = 'No Track Loaded';
+    const DEFAULT_ARTIST = '—';
 
     let playlist = []; // [{file, url, title, artist, cover, isYouTube, videoId}]
     let current = -1;
@@ -558,6 +622,10 @@
     let currentMode = LOCAL_MODE;
     let youtubePlayerInstance;
     let updateYoutubeProgressInterval;
+    let repeatMode = REPEAT_OFF;
+    let isShuffling = false;
+    let originalPlaylist = [];
+    let currentVolume = 1;
 
     // Audio Visualizer
     let audioContext, analyser, source, dataArray, visualizerAnimating = false;
@@ -572,13 +640,23 @@
             analyser.fftSize = 256;
             dataArray = new Uint8Array(analyser.frequencyBinCount);
             
+            // Handle context state for first play interaction
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
             source = audioContext.createMediaElementSource(audio);
             source.connect(analyser);
             analyser.connect(audioContext.destination);
         }
 
         function animateVisualizer() {
-            if (!visualizerAnimating) return;
+            if (!visualizerAnimating) {
+                // Ensure to reset box-shadow when stopping
+                artContainer.style.boxShadow = `0 12px 40px var(--shadow)`;
+                artContainer.style.transition = 'box-shadow 0.2s ease-out';
+                return;
+            }
             requestAnimationFrame(animateVisualizer);
             analyser.getByteFrequencyData(dataArray);
 
@@ -587,10 +665,12 @@
                 sum += dataArray[i];
             }
             let average = sum / dataArray.length;
-            let intensity = (average / 255) * 4;
-            artContainer.style.setProperty('--glow-intensity', intensity);
-            artContainer.style.boxShadow = `0 12px 40px var(--shadow), 0 0 ${20 * intensity}px rgba(255, 255, 255, ${0.4 * intensity})`;
-            artContainer.style.transition = 'box-shadow 0.1s ease-out';
+            let intensity = (average / 255) * 2.5; // Reduced intensity for subtlety
+            
+            // Only update shadow if audio is playing to prevent phantom glow
+            if (playing && currentMode === LOCAL_MODE) {
+              artContainer.style.boxShadow = `0 12px 40px var(--shadow), 0 0 ${15 * intensity}px rgba(255, 255, 255, ${0.4 * intensity})`;
+            }
         }
 
         animateVisualizer();
@@ -598,14 +678,20 @@
 
     function stopVisualizer() {
         visualizerAnimating = false;
-        artContainer.style.boxShadow = `0 12px 40px var(--shadow)`;
-        artContainer.style.transition = 'box-shadow 0.2s ease-out';
+        // The animateVisualizer loop will handle the box-shadow reset.
     }
 
+    // --- Custom Modal Function ---
+    function showModal(title, message) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        customModal.style.display = 'flex';
+    }
 
     // Helpers
     const fmt = s => isNaN(s)?'0:00':`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
     function setPlayIcon(isPlaying){
+      playing = isPlaying;
       playPause.innerHTML = isPlaying
         ? '<div class="pause-bars"><div class="bar"></div><div class="bar"></div></div>'
         : '<div class="tri-right"></div>';
@@ -621,13 +707,16 @@
         seek.value = Math.floor(currentTime || 0);
         cur.textContent = fmt(currentTime);
         dur.textContent = fmt(duration);
+        // Update seek bar background to show progress
+        const percent = (currentTime / duration) * 100 || 0;
+        seek.style.background = `linear-gradient(90deg, #fff ${percent}%, rgba(255,255,255,.28) ${percent}%)`;
     }
     function extractTags(file){
       return new Promise(resolve=>{
         window.jsmediatags.read(file, {
           onSuccess: tag => {
             const out = { title: tag.tags.title || file.name.replace(/\.[^/.]+$/,''),
-                         artist: tag.tags.artist || 'Unknown Artist',
+                         artist: tag.tags.artist || DEFAULT_ARTIST,
                          cover: null };
             if (tag.tags.picture){
               const { data, format } = tag.tags.picture;
@@ -639,7 +728,7 @@
           },
           onError: _ => resolve({
             title: file.name.replace(/\.[^/.]+$/,''),
-            artist: 'Unknown Artist',
+            artist: DEFAULT_ARTIST,
             cover: null
           })
         });
@@ -653,6 +742,8 @@
         playlist.push({ file:f, url, isYouTube: false, ...tags });
       }
       if (current === -1 && playlist.length){ load(0); }
+      // Update original playlist reference
+      originalPlaylist = [...playlist];
       renderQueue();
     }
     function load(index){
@@ -660,8 +751,8 @@
       current = index;
       const t = playlist[index];
       
-      titleEl.textContent = t.title || 'Unknown';
-      artistEl.textContent = t.artist || '—';
+      titleEl.textContent = t.title || DEFAULT_TITLE;
+      artistEl.textContent = t.artist || DEFAULT_ARTIST;
 
       if (t.isYouTube) {
           youtubePlayer.classList.add('active');
@@ -670,8 +761,7 @@
           if (youtubePlayerInstance) {
             youtubePlayerInstance.loadVideoById(t.videoId);
           } else {
-            // This case should not be reached if API is ready, but as a fallback
-            const videoUrl = `https://www.youtube.com/embed/${t.videoId}?autoplay=1&enablejsapi=1`;
+            const videoUrl = `https://www.youtube.com/embed/${t.videoId}?autoplay=1&enablejsapi=1&controls=0&rel=0&iv_load_policy=3`;
             youtubeIframe.src = videoUrl;
           }
 
@@ -710,11 +800,14 @@
     }
 
     function play(){
+        if (current === -1) { return; }
         if(currentMode === LOCAL_MODE) {
             audio.play();
+            if (audioContext && audioContext.state === 'suspended') audioContext.resume();
         } else if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
             youtubePlayerInstance.playVideo();
         }
+        setPlayIcon(true);
     }
     function pause(){
         if(currentMode === LOCAL_MODE) {
@@ -722,44 +815,100 @@
         } else if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
             youtubePlayerInstance.pauseVideo();
         }
+        setPlayIcon(false);
     }
+    
+    // Core next logic
+    function getNextIndex() {
+      if (repeatMode === REPEAT_ONE) return current;
+      
+      if (current < playlist.length - 1) return current + 1;
+      
+      // End of playlist
+      if (repeatMode === REPEAT_ALL) return 0;
+      
+      return -1; // Stop playing
+    }
+    
     function next(){
-        if (current < playlist.length-1){
-            load(current+1);
-        } else {
-            if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
-              // This relies on the YT playlist to handle the next video
-              youtubePlayerInstance.nextVideo();
-            } else {
-              pause();
-              audio.currentTime = 0;
-            }
-        }
+      const nextIndex = getNextIndex();
+      if (nextIndex !== -1) {
+        load(nextIndex);
+      } else {
+        pause();
+        if (currentMode === LOCAL_MODE) audio.currentTime = 0;
+      }
     }
     function prev(){
-        if (current > 0){
+        if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
+            youtubePlayerInstance.previousVideo();
+        } else if (current > 0) {
             load(current-1);
         } else {
-            if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
-              // This relies on the YT playlist to handle the previous video
-              youtubePlayerInstance.previousVideo();
-            } else {
-              load(0);
-            }
+            load(0);
         }
     }
+    
+    // --- Shuffle/Repeat handlers ---
+    function toggleShuffle() {
+      isShuffling = !isShuffling;
+      shuffleBtn.classList.toggle('active', isShuffling);
+
+      if (isShuffling) {
+          // Save original list, shuffle current playlist
+          const currentTrack = playlist[current];
+          
+          // Use original playlist as the base for shuffling if available
+          const listToShuffle = originalPlaylist.length > 0 ? originalPlaylist : [...playlist];
+
+          // Simple Fisher-Yates shuffle
+          for (let i = listToShuffle.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [listToShuffle[i], listToShuffle[j]] = [listToShuffle[j], listToQueue];
+          }
+
+          playlist = listToShuffle;
+          // Find the current track's new index in the shuffled list
+          current = playlist.findIndex(t => t === currentTrack);
+
+      } else {
+          // Restore original list and find current track's index in it
+          playlist = [...originalPlaylist];
+          current = playlist.findIndex(t => t === playlist[current]);
+      }
+      
+      renderQueue();
+    }
+    
+    function toggleRepeat() {
+        repeatMode = (repeatMode + 1) % 3;
+        repeatBtn.classList.remove('active');
+        repeatBtn.textContent = '⟳'; // Default: REPEAT_OFF
+        repeatBtn.title = 'Repeat Off';
+        
+        if (repeatMode === REPEAT_ONE) {
+            repeatBtn.textContent = '1';
+            repeatBtn.title = 'Repeat One';
+            repeatBtn.classList.add('active');
+        } else if (repeatMode === REPEAT_ALL) {
+            repeatBtn.textContent = '⟳';
+            repeatBtn.title = 'Repeat All';
+            repeatBtn.classList.add('active');
+        }
+        
+        if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
+            youtubePlayerInstance.setLoop(repeatMode === REPEAT_ALL);
+        }
+    }
+
+    shuffleBtn.addEventListener('click', toggleShuffle);
+    repeatBtn.addEventListener('click', toggleRepeat);
+
     // UI events
     playPause.addEventListener('click', ()=>{
-        if (currentMode === LOCAL_MODE) {
-            audio.paused ? play() : pause();
-        } else if (currentMode === YOUTUBE_MODE) {
-            const playerState = youtubePlayerInstance.getPlayerState();
-            if (playerState === YT.PlayerState.PLAYING) {
-                pause();
-            } else {
-                play();
-            }
-        }
+        if (current === -1) return;
+        if(playing) pause()
+        else play();
     });
     nextBtn.addEventListener('click', next);
     prevBtn.addEventListener('click', prev);
@@ -780,11 +929,6 @@
     });
     audio.addEventListener('timeupdate', ()=>{
       updateProgressUI(audio.currentTime, audio.duration);
-      if (audio.paused) {
-          setPlayIcon(false);
-      } else {
-          setPlayIcon(true);
-      }
     });
     seek.addEventListener('input', ()=> {
         if (currentMode === LOCAL_MODE) {
@@ -796,8 +940,25 @@
         }
     });
     audio.addEventListener('ended', ()=> {
-      if (current < playlist.length-1) next(); else pause();
+      if (repeatMode === REPEAT_ONE) {
+          play(); // Restart current track
+      } else {
+          next();
+      }
     });
+
+    // Volume Control
+    vol.addEventListener('input', (e) => {
+        currentVolume = e.target.value;
+        if (currentMode === LOCAL_MODE) {
+            audio.volume = currentVolume;
+        } else if (currentMode === YOUTUBE_MODE && youtubePlayerInstance) {
+            youtubePlayerInstance.setVolume(currentVolume * 100);
+        }
+        // Update volume slider fill
+        vol.style.background = `linear-gradient(90deg, #fff ${currentVolume * 100}%, rgba(255,255,255,.28) ${currentVolume * 100}%)`;
+    });
+    audio.volume = currentVolume; // Set initial audio volume
 
     // Overlays
     openQueue.onclick = ()=> queueOv.style.display='flex';
@@ -814,21 +975,19 @@
     function setPlayerMode(mode) {
         if (currentMode === mode) return;
 
-        // Reset current state
-        if (currentMode === LOCAL_MODE) {
-            audio.pause();
-        } else if (youtubePlayerInstance && typeof youtubePlayerInstance.pauseVideo === 'function') {
-            youtubePlayerInstance.pauseVideo();
-        }
+        if (currentMode === LOCAL_MODE) audio.pause();
+        else if (youtubePlayerInstance && typeof youtubePlayerInstance.pauseVideo === 'function') youtubePlayerInstance.pauseVideo();
         
         currentMode = mode;
         playlist = [];
+        originalPlaylist = [];
         current = -1;
-        titleEl.textContent = 'No Track';
-        artistEl.textContent = '—';
+        titleEl.textContent = DEFAULT_TITLE;
+        artistEl.textContent = DEFAULT_ARTIST;
         artImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800'%3E%3Crect width='100%25' height='100%25' fill='%23000'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23fff' font-family='Arial' font-size='28'%3EUpload music to begin%3C/text%3E%3C/svg%3E";
         bg.style.backgroundImage = "url('data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800'%3E%3Crect width='100%25' height='100%25' fill='%23000'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23fff' font-family='Arial' font-size='28'%3EUpload music to begin%3C/text%3E%3C/svg%3E')";
         updateProgressUI(0, 0);
+        setPlayIcon(false);
 
         if (mode === LOCAL_MODE) {
             fileUploads.classList.remove('hide');
@@ -851,33 +1010,41 @@
     openAIFeatures.onclick = () => aiFeaturesOv.style.display = 'flex';
     closeAIFeatures.onclick = () => aiFeaturesOv.style.display = 'none';
     
+    // --- AI Feature Placeholder Functions (Security Fix) ---
+    async function showPlaceholder(contentEl, infoType) {
+        contentEl.innerHTML = '<div class="spinner"></div> Loading... (Disabled for security)';
+        await new Promise(r => setTimeout(r, 1500)); // Simulate loading
+        contentEl.innerHTML = `⚠️ The **${infoType}** feature is disabled. To enable, you must remove the API key from the frontend and route requests through a secure **backend server**.`;
+    }
+
     aiArtistInfoBtn.onclick = () => {
         aiFeaturesOv.style.display = 'none';
         artistInfoOv.style.display = 'flex';
-        getArtistInfo();
+        showPlaceholder(artistInfoContent, 'Artist Info');
     };
     closeArtistInfo.onclick = () => artistInfoOv.style.display = 'none';
 
     aiSongSummaryBtn.onclick = () => {
         aiFeaturesOv.style.display = 'none';
         songSummaryOv.style.display = 'flex';
-        getSongDescription();
+        showPlaceholder(songSummaryContent, 'Song Summary');
     };
     closeSongSummary.onclick = () => songSummaryOv.style.display = 'none';
     
     aiLyricsFinderBtn.onclick = () => {
         aiFeaturesOv.style.display = 'none';
         lyricsFinderOv.style.display = 'flex';
-        getLyrics();
+        showPlaceholder(lyricsContent, 'Lyrics Finder');
     };
     closeLyricsFinder.onclick = () => lyricsFinderOv.style.display = 'none';
+    // --- End AI Feature Placeholder Functions ---
 
     // Queue render + drag reorder
     function renderQueue(){
       queueList.innerHTML = '';
       playlist.forEach((t, i)=>{
         const item = document.createElement('div');
-        item.className = 'upnext-item';
+        item.className = `upnext-item ${i === current ? 'current' : ''}`;
         item.draggable = true;
         item.dataset.index = i;
         
@@ -886,14 +1053,18 @@
         item.innerHTML = `
           <div class="dot"></div>
           <div style="flex:1; min-width:0;">
-            <div style="font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.title||'Unknown'}</div>
-            <div style="opacity:.85; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.artist||'Unknown Artist'}</div>
+            <div style="font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.title||DEFAULT_TITLE}</div>
+            <div style="opacity:.85; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.artist||DEFAULT_ARTIST}</div>
           </div>
           <div class="link">${playLinkText}</div>
+          <div class="queue-delete" data-idx="${i}">&times;</div>
         `;
-        if (i===current){ item.style.outline='2px solid rgba(255,255,255,.35)'; }
         
         item.querySelector('.link').onclick = ()=>{ load(i); };
+        item.querySelector('.queue-delete').onclick = (e) => { 
+            e.stopPropagation();
+            removeTrack(i);
+        };
         
         item.addEventListener('dragstart', e=>{
           e.dataTransfer.setData('text/plain', i.toString());
@@ -915,14 +1086,35 @@
       });
     }
 
-    // --- YouTube Integration ---
+    function removeTrack(index) {
+        if (playlist.length === 0) return;
+        
+        // Remove the track
+        playlist.splice(index, 1);
+        originalPlaylist = [...playlist]; // Update original list as well
+        
+        // Adjust current index
+        if (index === current) {
+            // If the current track was removed, try to load the next one
+            if (playlist.length > 0) {
+                load(index % playlist.length); // Load the track now at this index
+            } else {
+                // Queue is empty
+                setPlayerMode(currentMode); // Reset player state
+            }
+        } else if (index < current) {
+            // If a track before the current one was removed, shift current index back
+            current--;
+        }
+
+        renderQueue();
+    }
+
+
+    // --- YouTube Integration (Fetch calls updated to use showModal for errors) ---
     async function loadYouTubeVideo(url) {
         const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
-        if (!videoIdMatch) {
-            // Use custom modal instead of alert
-            showModal('Invalid YouTube Video URL', 'The URL you provided does not appear to be a valid YouTube video link. Please try again with a correct URL.');
-            return;
-        }
+        if (!videoIdMatch) { showModal('Invalid URL', 'Please try again with a correct YouTube video URL.'); return; }
         const videoId = videoIdMatch[1];
         
         try {
@@ -938,22 +1130,20 @@
                     isYouTube: true,
                     videoId: videoId
                 };
-                playlist = [newTrack]; // Replace current playlist
+                playlist = [newTrack];
+                originalPlaylist = [newTrack];
                 load(0);
             } else {
                 showModal('Video Not Found', 'The video ID could not be found. It may be private, deleted, or incorrect.');
             }
         } catch (error) {
-            showModal('Error Loading Video', 'An error occurred while trying to load the YouTube video. Please check your internet connection and try again.');
+            showModal('Error Loading Video', 'An error occurred while trying to load the YouTube video. Check API key and internet connection.');
         }
     }
 
     async function loadYouTubePlaylist(url) {
         const playlistIdMatch = url.match(/(?:list=)([^&]+)/);
-        if (!playlistIdMatch) {
-            showModal('Invalid YouTube Playlist URL', 'The URL you provided does not appear to be a valid YouTube playlist link. Please try again.');
-            return;
-        }
+        if (!playlistIdMatch) { showModal('Invalid URL', 'Please try again with a correct YouTube playlist URL.'); return; }
         const playlistId = playlistIdMatch[1];
         
         try {
@@ -969,12 +1159,13 @@
                     videoId: item.snippet.resourceId.videoId
                 }));
                 playlist = newPlaylist;
+                originalPlaylist = newPlaylist;
                 load(0);
             } else {
                 showModal('Playlist Not Found', 'The playlist could not be found or is empty.');
             }
         } catch (error) {
-            showModal('Error Loading Playlist', 'An error occurred while trying to load the YouTube playlist. Please check your internet connection and try again.');
+            showModal('Error Loading Playlist', 'An error occurred while trying to load the YouTube playlist. Check API key and internet connection.');
         }
     }
 
@@ -986,7 +1177,8 @@
                 'autoplay': 0,
                 'controls': 0,
                 'rel': 0,
-                'iv_load_policy': 3 // Disable video annotations
+                'iv_load_policy': 3,
+                'loop': repeatMode === REPEAT_ALL ? 1 : 0
             },
             events: {
                 'onReady': onPlayerReady,
@@ -996,141 +1188,35 @@
     }
 
     function onPlayerReady(event) {
+        // Set initial volume
+        youtubePlayerInstance.setVolume(currentVolume * 100);
+        
+        if (updateYoutubeProgressInterval) clearInterval(updateYoutubeProgressInterval);
         updateYoutubeProgressInterval = setInterval(() => {
-            const currentTime = youtubePlayerInstance.getCurrentTime();
-            const duration = youtubePlayerInstance.getDuration();
-            updateProgressUI(currentTime, duration);
+            if(youtubePlayerInstance.getPlayerState() === YT.PlayerState.PLAYING || youtubePlayerInstance.getPlayerState() === YT.PlayerState.PAUSED) {
+                const currentTime = youtubePlayerInstance.getCurrentTime();
+                const duration = youtubePlayerInstance.getDuration();
+                updateProgressUI(currentTime, duration);
+            }
         }, 1000);
     }
     
     function onPlayerStateChange(event) {
         if (event.data === YT.PlayerState.PLAYING) {
             setPlayIcon(true);
-        } else {
+        } else if (event.data === YT.PlayerState.PAUSED) {
             setPlayIcon(false);
+        } else if (event.data === YT.PlayerState.ENDED) {
+            // YouTube player handles loop if loop=1 is set (for REPEAT_ALL)
+            if (repeatMode === REPEAT_ONE) {
+                youtubePlayerInstance.seekTo(0, true);
+                youtubePlayerInstance.playVideo();
+            } else if (repeatMode !== REPEAT_ALL) {
+                next();
+            }
         }
     }
     // --- End YouTube Integration ---
-
-    // --- Gemini API Integration: Artist Info ---
-    async function getArtistInfo() {
-      if (current === -1) {
-        artistInfoContent.textContent = 'Please select a track first.';
-        return;
-      }
-      const artistString = playlist[current].artist || 'Unknown Artist';
-      artistInfoContent.innerHTML = '<div class="spinner"></div> Loading...';
-      try {
-        let userQuery;
-        if (artistString.includes(',')) {
-          const artists = artistString.split(',').map(name => name.trim()).filter(name => name.length > 0);
-          const artistList = artists.join(' and ');
-          userQuery = `Provide a concise, single-paragraph biography for the artists "${artistList}". Include their most notable albums. Highlight any significant collaborations or relationships between them.`;
-        } else {
-          userQuery = `Provide a concise, single-paragraph biography for the artist "${artistString}". Include their most notable albums.`;
-        }
-        
-        const systemPrompt = "Act as a world-class music journalist. Provide a concise, single-paragraph summary of the artist's biography and their major works. Do not include any links or external citations.";
-        const apiKey = "AIzaSyBSLsn-pVZT_wL1Ql41msVRHrCH_w3DXgY";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-        const payload = {
-          contents: [{ parts: [{ text: userQuery }] }],
-          tools: [{ "google_search": {} }],
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-        };
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const result = await response.json();
-        const candidate = result.candidates?.[0];
-        if (candidate && candidate.content?.parts?.[0]?.text) {
-          artistInfoContent.textContent = candidate.content.parts[0].text;
-        } else {
-          artistInfoContent.textContent = 'Could not retrieve artist information.';
-        }
-      } catch (error) {
-        console.error('Error fetching artist info:', error);
-        artistInfoContent.textContent = 'An error occurred while fetching information. Please try again.';
-      }
-    }
-    
-    // --- Gemini API Integration: Song Summary ---
-    async function getSongDescription() {
-        if (current === -1) {
-            songSummaryContent.textContent = 'Please select a track first.';
-            return;
-        }
-        const songTitle = playlist[current].title || 'Unknown Title';
-        const artistName = playlist[current].artist || 'Unknown Artist';
-        songSummaryContent.innerHTML = '<div class="spinner"></div> Loading...';
-        try {
-            const userQuery = `Give a one-sentence summary of the song "${songTitle}" by "${artistName}". Describe its primary mood and genre.`;
-            const systemPrompt = "Act as a music enthusiast. Provide a concise, single-sentence description of the song's mood, genre, and feel.";
-            const apiKey = "AIzaSyBSLsn-pVZT_wL1Ql41msVRHrCH_w3DXgY";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                tools: [{ "google_search": {} }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-            };
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const result = await response.json();
-            const candidate = result.candidates?.[0];
-            if (candidate && candidate.content?.parts?.[0]?.text) {
-                songSummaryContent.textContent = candidate.content.parts[0].text;
-            } else {
-                songSummaryContent.textContent = 'Could not retrieve a summary for this song.';
-            }
-        } catch (error) {
-            console.error('Error fetching song summary:', error);
-            songSummaryContent.textContent = 'An error occurred while fetching the summary. Please try again.';
-        }
-    }
-    // --- End Gemini API Integration: Song Summary ---
-
-    // --- Gemini API Integration: Lyrics Finder ---
-    async function getLyrics() {
-        if (current === -1) {
-            lyricsContent.textContent = 'Please select a track first.';
-            return;
-        }
-        const songTitle = playlist[current].title || 'Unknown Title';
-        const artistName = playlist[current].artist || 'Unknown Artist';
-        lyricsContent.innerHTML = '<div class="spinner"></div> Loading...';
-        try {
-            const userQuery = `Provide the full lyrics for the song "${songTitle}" by "${artistName}" from genius.com. Do not include any intros, outros, or non-lyrical sections. Just the lyrics.`;
-            const systemPrompt = "Act as a professional lyricist. Provide the lyrics for the requested song in a clean, easy-to-read format. Do not include any additional information or commentary.";
-            const apiKey = "AIzaSyBSLsn-pVZT_wL1Ql41msVRHrCH_w3DXgY";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                tools: [{ "google_search": {} }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-            };
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const result = await response.json();
-            const candidate = result.candidates?.[0];
-            if (candidate && candidate.content?.parts?.[0]?.text) {
-                lyricsContent.textContent = candidate.content.parts[0].text;
-            } else {
-                lyricsContent.textContent = 'Could not find lyrics for this song.';
-            }
-        } catch (error) {
-            console.error('Error fetching lyrics:', error);
-            lyricsContent.textContent = 'An error occurred while fetching the lyrics. Please try again.';
-        }
-    }
-    // --- End Gemini API Integration: Lyrics Finder ---
 
     // Splash screen logic
     window.addEventListener('DOMContentLoaded', () => {
